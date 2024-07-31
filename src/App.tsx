@@ -34,7 +34,15 @@ function App() {
         and then mint the NFTs using wagmi{"'"}useContractWrite hook.
       </div>
       <div className="mx-auto">
-        <ConnectButton client={thirdwebClient} />
+        <ConnectButton
+          client={thirdwebClient}
+          accountAbstraction={{
+            factoryAddress: "0xE90DebFD907F5B655f22bfC16083E45994d708bE",
+            chain: sepolia,
+            sponsorGas: false,
+          }}
+          autoConnect={true}
+        />
       </div>
 
       {activeAccount ? (
@@ -86,7 +94,7 @@ const MintNftWithWagmi = ({
      * However in most real world scenario you need to make things "dynamic"
      */
     const quantity = 1;
-    const tokenId = 0; // The Edition contract in this repo has only 1 token
+    // const tokenId = 0; // The Edition contract in this repo has only 1 token
     const currency = NATIVE_TOKEN_ADDRESS;
     const receiver = thirdwebAccount.address;
     const pricePerToken = 0;
