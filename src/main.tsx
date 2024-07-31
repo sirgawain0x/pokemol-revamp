@@ -4,13 +4,13 @@ import App from "./App.tsx";
 import "./index.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { avalancheFuji } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const config = createConfig({
-  chains: [avalancheFuji],
+  chains: [sepolia],
   transports: {
-    [avalancheFuji.id]: http(),
+    [sepolia.id]: http(),
   },
 });
 
