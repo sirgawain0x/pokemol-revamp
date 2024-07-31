@@ -3,6 +3,8 @@ import {
   useActiveAccount,
   useActiveWalletChain,
   useSwitchActiveWalletChain,
+  MediaRenderer,
+  useReadContract,
 } from "thirdweb/react";
 import {
   createThirdwebClient,
@@ -10,10 +12,12 @@ import {
   NATIVE_TOKEN_ADDRESS,
 } from "thirdweb";
 import { Account } from "thirdweb/wallets";
-import { avalancheFuji } from "thirdweb/chains";
+import { sepolia } from "thirdweb/chains";
 import { resolveContractAbi } from "thirdweb/contract";
+import { getNFT } from "thirdweb/extensions/erc721";
 import { useState } from "react";
 import { useWriteContract } from "wagmi";
+import { Skeleton } from "./components/ui/skeleton";
 
 /**
  * In this example, we will be connecting wallet to the app using thirdweb
@@ -44,10 +48,16 @@ function App() {
 
 export default App;
 
-const contractAddress = "0x6829f1b35a8b8F00334e6eb9737057C584C73aD5";
+const contractAddress = "0x8E231895043BF1A87639eCCA786d84c972f83a2C";
 export const thirdwebClient = createThirdwebClient({
   // If not using Vite, then use `process.env.NEXT_PUBLIC_CLIENT_ID`
   clientId: import.meta.env.VITE_CLIENT_ID,
+});
+
+const thirdwebContract = getContract({
+  address: contractAddress,
+  chain: sepolia,
+  client: thirdwebClient,
 });
 
 const MintNftWithWagmi = ({
@@ -67,7 +77,7 @@ const MintNftWithWagmi = ({
   const claimNFT = async () => {
     setIsLoading(true);
     // Make sure user is on the right chain
-    if (walletChain?.id !== avalancheFuji.id) await switchChain(avalancheFuji);
+    if (walletChain?.id !== sepolia?.id) await switchChain(sepolia);
 
     /**
      * Step 1: Preparing contract call params (we will be calling the `claim` function)
@@ -80,7 +90,7 @@ const MintNftWithWagmi = ({
     const currency = NATIVE_TOKEN_ADDRESS;
     const receiver = thirdwebAccount.address;
     const pricePerToken = 0;
-    const data = "0x";
+    const addressZero = "0x";
     const allowListProof = {
       proof: [
         "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -93,11 +103,6 @@ const MintNftWithWagmi = ({
     /**
      * Step 2: Use thirdweb sdk to get the ABI of the contract
      */
-    const thirdwebContract = getContract({
-      address: contractAddress,
-      chain: avalancheFuji,
-      client: thirdwebClient,
-    });
     const abi = await resolveContractAbi(thirdwebContract);
 
     /**
@@ -110,12 +115,11 @@ const MintNftWithWagmi = ({
         functionName: "claim",
         args: [
           receiver,
-          tokenId,
           quantity,
           currency,
           pricePerToken,
           allowListProof,
-          data,
+          addressZero,
         ],
       });
       console.log({ hash });
@@ -125,15 +129,22 @@ const MintNftWithWagmi = ({
     }
     setIsLoading(false);
   };
+
+  const { data } = useReadContract(getNFT, {
+    contract: thirdwebContract,
+    tokenId: 1n,
+  });
   return (
     <div className="mx-auto mt-10 lg:w-[600px] flex flex-col gap-4">
-      <img
-        src="/thirdweb-logo.jpeg"
-        alt=""
-        width={300}
-        height={300}
-        className="mx-auto border rounded-2xl"
-      />
+      {isLoading ? (
+        <div className="flex items-center space-x-4">
+          <Skeleton className="max-h-48 w-[500px]" />
+        </div>
+      ) : (
+        <div className="mx-auto">
+          <MediaRenderer client={thirdwebClient} src={data?.metadata.image} />
+        </div>
+      )}
       <button
         className="bg-purple-700 text-white rounded-2xl py-3 w-[250px] mx-auto hover:bg-purple-500"
         onClick={claimNFT}
