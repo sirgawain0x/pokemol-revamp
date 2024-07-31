@@ -11,7 +11,7 @@ import {
   getContract,
   NATIVE_TOKEN_ADDRESS,
 } from "thirdweb";
-import { Account } from "thirdweb/wallets";
+import { Account, inAppWallet, createWallet } from "thirdweb/wallets";
 import { sepolia } from "thirdweb/chains";
 import { resolveContractAbi } from "thirdweb/contract";
 import { getNFT } from "thirdweb/extensions/erc721";
@@ -42,6 +42,25 @@ function App() {
             sponsorGas: false,
           }}
           autoConnect={true}
+          wallets={[
+            inAppWallet({
+              auth: {
+                options: [
+                  "farcaster",
+                  "discord",
+                  "passkey",
+                  "apple",
+                  "google",
+                  "email",
+                  "phone",
+                ],
+              },
+            }),
+            createWallet("io.metamask"),
+            createWallet("com.coinbase.wallet"),
+            createWallet("global.safe"),
+            createWallet("walletConnect"),
+          ]}
         />
       </div>
 
