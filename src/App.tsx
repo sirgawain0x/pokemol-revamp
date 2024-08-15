@@ -36,6 +36,7 @@ function App() {
       <div className="mx-auto">
         <ConnectButton
           client={thirdwebClient}
+          chain={sepolia}
           accountAbstraction={{
             factoryAddress: "0xE90DebFD907F5B655f22bfC16083E45994d708bE",
             chain: sepolia,
